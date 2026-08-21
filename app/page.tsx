@@ -1,12 +1,11 @@
 import Navbar from "@/components/layout/Navbar";
+import Hero from "@/components/sections/Hero";
 
 export default function Home() {
   return (
     <main>
       <Navbar />
-
-      <h1>Salih Hayat</h1>
-      <p>Full-Stack Developer</p>
+      <Hero />
     </main>
   );
 }
