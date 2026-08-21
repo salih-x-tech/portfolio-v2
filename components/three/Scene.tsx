@@ -15,8 +15,11 @@ function Cube() {
     cubeRef.current.rotation.y += 0.005;
 
     cubeRef.current.position.y =
-      Math.sin(state.clock.elapsedTime * 1.5) * 0.15;
-  });
+        Math.sin(state.clock.elapsedTime * 1.5) * 0.15;
+
+    cubeRef.current.rotation.x += state.pointer.y * 0.001;
+    cubeRef.current.rotation.y += state.pointer.x * 0.001;
+    });
 
   return (
     <mesh ref={cubeRef} rotation={[0.4, 0.6, 0]}>
