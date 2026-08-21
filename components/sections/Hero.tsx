@@ -2,7 +2,7 @@ export default function Hero() {
   return (
     <section
       id="hero"
-      className="relative min-h-screen overflow-hidden px-6 pt-32 pb-16"
+      className="portfolio-grid relative min-h-screen overflow-hidden px-6 pt-32 pb-16"
     >
       <div className="mx-auto grid min-h-[calc(100vh-8rem)] max-w-6xl items-center gap-12 lg:grid-cols-2">
         {/* Hero Content */}
