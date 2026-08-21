@@ -26,6 +26,28 @@ function Cube() {
   );
 }
 
+
+function Sphere() {
+  const sphereRef = useRef<Mesh>(null);
+
+  useFrame((state) => {
+    if (!sphereRef.current) return;
+
+    sphereRef.current.rotation.x += 0.004;
+    sphereRef.current.rotation.y += 0.006;
+
+    sphereRef.current.position.y =
+      0.4 + Math.sin(state.clock.elapsedTime * 2) * 0.25;
+  });
+
+  return (
+    <mesh ref={sphereRef} position={[2.2, 0.4, -0.5]}>
+      <sphereGeometry args={[0.55, 32, 32]} />
+      <meshStandardMaterial color="#ffffff" />
+    </mesh>
+  );
+}
+
 export default function Scene() {
   return (
     <Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
@@ -37,6 +59,8 @@ export default function Scene() {
       />
 
       <Cube />
+
+      <Sphere />
 
       <OrbitControls enableZoom={false} />
     </Canvas>

@@ -1,3 +1,4 @@
+import Scene from "@/components/three/Scene";
 export default function Hero() {
   return (
     <section
@@ -42,16 +43,8 @@ export default function Hero() {
         </div>
 
         {/* 3D Scene Placeholder */}
-        <div className="relative flex min-h-[400px] items-center justify-center rounded-3xl border border-white/10 bg-white/[0.02]">
-          <div className="text-center">
-            <p className="text-sm uppercase tracking-[0.3em] text-zinc-500">
-              3D Experience
-            </p>
-
-            <p className="mt-3 text-zinc-600">
-              Interactive scene coming soon
-            </p>
-          </div>
+        <div className="relative h-[400px] overflow-hidden rounded-3xl border border-white/10 bg-white/[0.02]">
+          <Scene />
         </div>
       </div>
     </section>
