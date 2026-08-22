@@ -1,9 +1,21 @@
 "use client";
 
 import { useRef } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls, Stars } from "@react-three/drei";
 import type { Mesh } from "three";
+
+function ResponsiveCamera() {
+  const { camera, viewport } = useThree();
+
+  if (viewport.width < 5) {
+    camera.position.z = 6;
+  } else {
+    camera.position.z = 5;
+  }
+
+  return null;
+}
 
 function Cube() {
   const cubeRef = useRef<Mesh>(null);
@@ -62,6 +74,7 @@ function Sphere() {
 export default function Scene() {
   return (
     <Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
+      <ResponsiveCamera />
       <ambientLight intensity={1} />
 
       <directionalLight
@@ -84,6 +97,8 @@ export default function Scene() {
         fade
         speed={0.5}
       />
+
+      
 
       <Cube />
 
