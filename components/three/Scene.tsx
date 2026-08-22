@@ -61,6 +61,12 @@ export default function Scene() {
         intensity={2}
       />
 
+      <pointLight
+        position={[-3, 2, 4]}
+        intensity={15}
+        distance={10}
+      />
+
       <Cube />
 
       <Sphere />
