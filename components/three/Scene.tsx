@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls } from "@react-three/drei";
+import { OrbitControls, Stars } from "@react-three/drei";
 import type { Mesh } from "three";
 
 function Cube() {
@@ -73,6 +73,16 @@ export default function Scene() {
         position={[-3, 2, 4]}
         intensity={15}
         distance={10}
+      />
+
+      <Stars
+        radius={8}
+        depth={5}
+        count={80}
+        factor={1.5}
+        saturation={0}
+        fade
+        speed={0.5}
       />
 
       <Cube />
