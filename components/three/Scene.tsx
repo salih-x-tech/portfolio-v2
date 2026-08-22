@@ -24,7 +24,11 @@ function Cube() {
   return (
     <mesh ref={cubeRef} rotation={[0.4, 0.6, 0]}>
       <boxGeometry args={[2, 2, 2]} />
-      <meshStandardMaterial color="#22d3ee" />
+      <meshStandardMaterial
+        color="#22d3ee"
+        metalness={0.7}
+        roughness={0.25}
+      />
     </mesh>
   );
 }
@@ -46,7 +50,11 @@ function Sphere() {
   return (
     <mesh ref={sphereRef} position={[2.2, 0.4, -0.5]}>
       <sphereGeometry args={[0.55, 32, 32]} />
-      <meshStandardMaterial color="#ffffff" />
+      <meshStandardMaterial
+        color="#ffffff"
+        metalness={0.4}
+        roughness={0.2}
+      />
     </mesh>
   );
 }
