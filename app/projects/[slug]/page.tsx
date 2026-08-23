@@ -78,6 +78,25 @@ export default async function ProjectPage({
           </div>
         </div>
 
+        {project.screenshots.length > 0 && (
+            <section className="mt-16">
+                <div className="grid gap-6 md:grid-cols-2">
+                {project.screenshots.map((screenshot) => (
+                    <div
+                    key={screenshot.src}
+                    className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03]"
+                    >
+                    <img
+                        src={screenshot.src}
+                        alt={screenshot.alt}
+                        className="h-auto w-full object-cover transition-transform duration-500 hover:scale-[1.02]"
+                    />
+                    </div>
+                ))}
+                </div>
+            </section>
+        )}
+
         <div className="mt-16 grid gap-12 md:grid-cols-[1fr_0.7fr]">
           <section>
             <h2 className="text-xl font-semibold">About the project</h2>
@@ -102,6 +121,50 @@ export default async function ProjectPage({
             </div>
           </section>
         </div>
+
+        <section className="mt-16 grid gap-10 border-t border-white/10 pt-12 md:grid-cols-2">
+          <div>
+            <h2 className="text-xl font-semibold">The Problem</h2>
+
+            <p className="mt-4 text-sm leading-7 text-zinc-400">
+              {project.problem}
+            </p>
+          </div>
+
+          <div>
+            <h2 className="text-xl font-semibold">The Solution</h2>
+
+            <p className="mt-4 text-sm leading-7 text-zinc-400">
+              {project.solution}
+            </p>
+          </div>
+        </section>
+
+        <section className="mt-16 grid gap-10 border-t border-white/10 pt-12 md:grid-cols-2">
+          <div>
+            <h2 className="text-xl font-semibold">Challenges</h2>
+
+            <ul className="mt-5 space-y-3">
+              {project.challenges.map((challenge) => (
+                <li
+                  key={challenge}
+                  className="text-sm leading-7 text-zinc-400"
+                >
+                  <span className="mr-2 text-cyan-400">→</span>
+                  {challenge}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h2 className="text-xl font-semibold">What I Learned</h2>
+
+            <p className="mt-4 text-sm leading-7 text-zinc-400">
+              {project.learning}
+            </p>
+          </div>
+        </section>
 
         <section className="mt-16 border-t border-white/10 pt-12">
           <h2 className="text-xl font-semibold">Key features</h2>
