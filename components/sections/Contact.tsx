@@ -11,13 +11,18 @@ const contactLinks = [
   },
   {
     label: "LinkedIn",
-    value: "Connect with me",
-    href: "#",
+    value: "linkedin.com/in/salih-hayat-dev",
+    href: "https://www.linkedin.com/in/salih-hayat-dev/",
   },
   {
     label: "X",
-    value: "@SalihXTech",
-    href: "#",
+    value: "@salih_haya2241",
+    href: "https://x.com/salih_haya2241",
+  },
+  {
+    label: "Instagram",
+    value: "@salihxtech",
+    href: "https://www.instagram.com/salihxtech/",
   },
 ];
 
@@ -29,7 +34,6 @@ export default function Contact() {
     >
       <div className="mx-auto max-w-6xl">
         <div className="grid gap-12 lg:grid-cols-[1.2fr_0.8fr]">
-          {/* Intro */}
           <div>
             <p className="mb-3 text-sm font-medium uppercase tracking-[0.2em] text-cyan-400">
               Contact
@@ -53,14 +57,17 @@ export default function Contact() {
             </a>
           </div>
 
-          {/* Contact Links */}
           <div className="space-y-3">
             {contactLinks.map((link) => (
               <a
                 key={link.label}
                 href={link.href}
                 target={link.href.startsWith("http") ? "_blank" : undefined}
-                rel={link.href.startsWith("http") ? "noopener noreferrer" : undefined}
+                rel={
+                  link.href.startsWith("http")
+                    ? "noopener noreferrer"
+                    : undefined
+                }
                 className="group flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-4 transition-all duration-300 hover:border-cyan-400/30 hover:bg-white/[0.05]"
               >
                 <div>
