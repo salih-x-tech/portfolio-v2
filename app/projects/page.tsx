@@ -1,18 +1,31 @@
+"use client";
+
+import { useState } from "react";
 import { projects } from "@/lib/projects";
 
+const filters = ["All", "Full-Stack", "Frontend", "Creative"] as const;
+
 export default function ProjectsPage() {
+  const [activeFilter, setActiveFilter] =
+    useState<(typeof filters)[number]>("All");
+
+  const filteredProjects =
+    activeFilter === "All"
+      ? projects
+      : projects.filter((project) => project.type === activeFilter);
+
   return (
     <main className="min-h-screen bg-black px-6 py-24 text-white sm:px-10 lg:px-16">
       <div className="mx-auto max-w-6xl">
-        <div className="mb-12">
-          <a
-            href="/"
-            className="text-sm text-zinc-500 transition-colors hover:text-cyan-400"
-          >
-            ← Back home
-          </a>
+        <a
+          href="/"
+          className="text-sm text-zinc-500 transition-colors hover:text-cyan-400"
+        >
+          ← Back home
+        </a>
 
-          <p className="mt-10 mb-3 text-sm font-medium uppercase tracking-[0.2em] text-cyan-400">
+        <div className="mb-10 mt-10">
+          <p className="mb-3 text-sm font-medium uppercase tracking-[0.2em] text-cyan-400">
             Projects
           </p>
 
@@ -26,8 +39,34 @@ export default function ProjectsPage() {
           </p>
         </div>
 
+        <div className="mb-10 flex flex-wrap gap-3">
+          {filters.map((filter) => {
+            const isActive = activeFilter === filter;
+
+            return (
+              <button
+                key={filter}
+                type="button"
+                onClick={() => setActiveFilter(filter)}
+                className={`rounded-full border px-4 py-2 text-sm transition-all ${
+                  isActive
+                    ? "border-cyan-400 bg-cyan-400 text-black"
+                    : "border-white/10 text-zinc-400 hover:border-cyan-400/40 hover:text-cyan-400"
+                }`}
+              >
+                {filter}
+              </button>
+            );
+          })}
+        </div>
+
+        <p className="mb-6 text-sm text-zinc-600">
+          Showing {filteredProjects.length}{" "}
+          {filteredProjects.length === 1 ? "project" : "projects"}
+        </p>
+
         <div className="grid gap-6 lg:grid-cols-2">
-          {projects.map((project, index) => (
+          {filteredProjects.map((project, index) => (
             <article
               key={project.slug}
               className="flex min-h-[360px] flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-6 transition-all duration-300 hover:-translate-y-1 hover:border-cyan-400/30"
