@@ -1,6 +1,20 @@
-import { projects } from "@/lib/projects";
+type Project = {
+  title: string;
+  slug: string;
+  description: string;
+  tech: string[];
+  type: string;
+  github: string;
+  demo: string;
+  featured: boolean;
+  status: string;
+};
 
-export default function Projects() {
+type ProjectsProps = {
+  projects: Project[];
+};
+
+export default function Projects({ projects }: ProjectsProps) {
   const featuredProjects = projects.filter((project) => project.featured);
 
   return (

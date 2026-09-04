@@ -7,7 +7,29 @@ import Experience from "@/components/sections/Experience";
 import Contact from "@/components/sections/Contact";
 import Footer from "@/components/layout/Footer";
 
-export default function Home() {
+import { connectDB } from "@/lib/mongodb";
+import Project from "@/lib/models/Project";
+
+export default async function Home() {
+  await connectDB();
+
+  const projectsFromDB = await Project.find({ featured: true })
+    .sort({ createdAt: -1 })
+    .limit(4)
+    .lean();
+
+  const projects = projectsFromDB.map((project) => ({
+    title: project.title,
+    slug: project.slug,
+    description: project.description,
+    tech: project.technologies || [],
+    type: project.type || "Project",
+    github: project.github || "",
+    demo: project.liveDemo || "",
+    featured: project.featured ?? true,
+    status: project.status || "Completed",
+  }));
+
   return (
     <>
       <Navbar />
@@ -16,7 +38,9 @@ export default function Home() {
         <Hero />
         <About />
         <Skills />
-        <Projects />
+
+        <Projects projects={projects} />
+
         <Experience />
         <Contact />
       </main>
