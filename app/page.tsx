@@ -13,10 +13,19 @@ import Project from "@/lib/models/Project";
 export default async function Home() {
   await connectDB();
 
-  const projectsFromDB = await Project.find({ featured: true })
+  let projectsFromDB = await Project.find({ featured: true })
     .sort({ createdAt: -1 })
-    .limit(4)
+    .limit(6)
     .lean();
+
+  if (projectsFromDB.length < 6) {
+    const existingIds = projectsFromDB.map((p) => p._id);
+    const additional = await Project.find({ _id: { $nin: existingIds } })
+      .sort({ createdAt: -1 })
+      .limit(6 - projectsFromDB.length)
+      .lean();
+    projectsFromDB = [...projectsFromDB, ...additional];
+  }
 
   const projects = projectsFromDB.map((project) => ({
     title: project.title,
@@ -28,6 +37,7 @@ export default async function Home() {
     demo: project.liveDemo || "",
     featured: project.featured ?? true,
     status: project.status || "Completed",
+    image: project.images?.[0] || project.screenshots?.[0] || "",
   }));
 
   return (

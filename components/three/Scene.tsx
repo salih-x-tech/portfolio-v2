@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls, Stars } from "@react-three/drei";
 import type { Mesh } from "three";
@@ -8,11 +8,13 @@ import type { Mesh } from "three";
 function ResponsiveCamera() {
   const { camera, viewport } = useThree();
 
-  if (viewport.width < 5) {
-    camera.position.z = 6;
-  } else {
-    camera.position.z = 5;
-  }
+  useEffect(() => {
+    if (viewport.width < 5) {
+      camera.position.z = 6;
+    } else {
+      camera.position.z = 5;
+    }
+  }, [camera, viewport.width]);
 
   return null;
 }
@@ -31,13 +33,13 @@ function Cube() {
 
     cubeRef.current.rotation.x += state.pointer.y * 0.001;
     cubeRef.current.rotation.y += state.pointer.x * 0.001;
-    });
+  });
 
   return (
     <mesh ref={cubeRef} rotation={[0.4, 0.6, 0]}>
       <boxGeometry args={[2, 2, 2]} />
       <meshStandardMaterial
-        color="#22d3ee"
+        color="#6366f1"
         metalness={0.7}
         roughness={0.25}
       />
