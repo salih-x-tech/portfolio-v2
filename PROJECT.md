@@ -1469,11 +1469,6 @@ Production:
 
 
 
-persnal image ,
-diffrent text change in one like show web dev , software enginer full stack like it show skill that i am ,
- resume download option
-
- and add projects from side that make me easy use to user that have all option like others projects 
 
  
 
