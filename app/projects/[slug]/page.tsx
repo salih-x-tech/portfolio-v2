@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { connectDB } from "@/lib/mongodb";
 import Project from "@/lib/models/Project";
@@ -10,6 +11,87 @@ type ProjectPageProps = {
 };
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  params,
+}: ProjectPageProps): Promise<Metadata> {
+  const { slug } = await params;
+
+  try {
+    await connectDB();
+
+    const project = await Project.findOne({ slug }).lean();
+
+    if (!project) {
+      return {
+        title: "Project Not Found",
+        description: "The requested project could not be found.",
+        robots: {
+          index: false,
+          follow: false,
+        },
+      };
+    }
+
+    const title = `${project.title} | Salih Hayat`;
+
+    const description =
+      project.description ||
+      project.longDescription ||
+      `Explore ${project.title}, a project built by Salih Hayat.`;
+
+    const image = project.images?.[0];
+
+    return {
+      title,
+      description,
+
+      keywords: [
+        project.title,
+        "Salih Hayat",
+        "Salih X Tech",
+        "Full-Stack Developer",
+        ...(project.technologies || []),
+        ...(project.type ? [project.type] : []),
+      ],
+
+      alternates: {
+        canonical: `/projects/${project.slug}`,
+      },
+
+      openGraph: {
+        type: "article",
+        title,
+        description,
+        url: `/projects/${project.slug}`,
+        siteName: "Salih Hayat",
+        images: image
+          ? [
+              {
+                url: image,
+                alt: `${project.title} - Salih Hayat`,
+              },
+            ]
+          : undefined,
+      },
+
+      twitter: {
+        card: image ? "summary_large_image" : "summary",
+        title,
+        description,
+        images: image ? [image] : undefined,
+      },
+    };
+  } catch (error) {
+    console.error("Project metadata error:", error);
+
+    return {
+      title: "Project | Salih Hayat",
+      description:
+        "Explore projects built by Salih Hayat, a Full-Stack Developer.",
+    };
+  }
+}
 
 export default async function ProjectPage({
   params,
@@ -35,6 +117,35 @@ export default async function ProjectPage({
   const features = project.features ?? [];
 
   return (
+  <>
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{
+        __html: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "SoftwareSourceCode",
+          name: project.title,
+          description:
+            project.description ||
+            project.longDescription ||
+            "A software project built by Salih Hayat.",
+          url: `https://salihhayat.dev/projects/${project.slug}`,
+          author: {
+            "@type": "Person",
+            name: "Salih Hayat",
+            url: "https://salihhayat.dev",
+          },
+          programmingLanguage: technologies,
+          image: images[0] || undefined,
+          keywords: technologies.join(", "),
+        }),
+      }}
+    />
+
+    
+    
+
+
     <main className="relative min-h-screen overflow-hidden px-6 py-24 text-white sm:px-10 lg:px-16">
       {/* Background subtle glow */}
       <div className="pointer-events-none absolute left-1/3 top-20 h-96 w-96 rounded-full bg-indigo-600/10 blur-[150px]" />
@@ -193,5 +304,6 @@ export default async function ProjectPage({
         )}
       </div>
     </main>
+    </>
   );
 }

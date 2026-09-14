@@ -2,11 +2,14 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Cropper from "react-easy-crop";
 
 type ProjectForm = {
   title: string;
   slug: string;
   description: string;
+  images: string[];
+  screenshots: string[];
   longDescription: string;
   category: string;
   type: string;
@@ -22,6 +25,85 @@ type ProjectForm = {
   status: string;
 };
 
+  async function getCroppedImg(
+      imageSrc: string,
+      pixelCrop: {
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+      },
+      rotation = 0
+    ): Promise<Blob> {
+      const image = new Image();
+      image.crossOrigin = "anonymous";
+      image.src = imageSrc;
+
+      await new Promise<void>((resolve, reject) => {
+        image.onload = () => resolve();
+        image.onerror = () => reject(new Error("Failed to load image"));
+      });
+
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+
+      if (!ctx) {
+        throw new Error("Could not create canvas");
+      }
+
+      const radians = (rotation * Math.PI) / 180;
+
+      const sin = Math.abs(Math.sin(radians));
+      const cos = Math.abs(Math.cos(radians));
+
+      canvas.width = image.width * cos + image.height * sin;
+      canvas.height = image.width * sin + image.height * cos;
+
+      ctx.translate(canvas.width / 2, canvas.height / 2);
+      ctx.rotate(radians);
+      ctx.translate(-image.width / 2, -image.height / 2);
+
+      ctx.drawImage(image, 0, 0);
+
+      const croppedCanvas = document.createElement("canvas");
+      const croppedCtx = croppedCanvas.getContext("2d");
+
+      if (!croppedCtx) {
+        throw new Error("Could not create cropped canvas");
+      }
+
+      croppedCanvas.width = pixelCrop.width;
+      croppedCanvas.height = pixelCrop.height;
+
+      croppedCtx.drawImage(
+        canvas,
+        pixelCrop.x,
+        pixelCrop.y,
+        pixelCrop.width,
+        pixelCrop.height,
+        0,
+        0,
+        pixelCrop.width,
+        pixelCrop.height
+      );
+
+      return new Promise<Blob>((resolve, reject) => {
+        croppedCanvas.toBlob(
+          (blob) => {
+            if (blob) {
+              resolve(blob);
+            } else {
+              reject(new Error("Failed to create cropped image"));
+            }
+          },
+          "image/jpeg",
+          0.9
+        );
+      });
+    }
+
+    
+
 export default function EditProjectPage() {
   const params = useParams();
   const router = useRouter();
@@ -32,6 +114,8 @@ export default function EditProjectPage() {
     title: "",
     slug: "",
     description: "",
+    images: [],
+    screenshots: [],
     longDescription: "",
     category: "Frontend",
     type: "Frontend Web Application",
@@ -50,6 +134,32 @@ export default function EditProjectPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [uploadingImage, setUploadingImage] = useState(false);
+
+  const [editingImage, setEditingImage] = useState<string | null>(null);
+  const [editingImageIndex, setEditingImageIndex] = useState<number | null>(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [rotation, setRotation] = useState(0);
+
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<{
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  } | null>(null);
+
+  function handleCropComplete(
+    _: { x: number; y: number },
+    croppedAreaPixels: {
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+    }
+  ) {
+    setCroppedAreaPixels(croppedAreaPixels);
+  }
 
   useEffect(() => {
     async function loadProject() {
@@ -67,6 +177,8 @@ export default function EditProjectPage() {
           title: project.title || "",
           slug: project.slug || "",
           description: project.description || "",
+          images: project.images || [],
+          screenshots: project.screenshots || [],
           longDescription: project.longDescription || "",
           category: project.category || "Frontend",
           type: project.type || "Frontend Web Application",
@@ -96,6 +208,49 @@ export default function EditProjectPage() {
 
     loadProject();
   }, [id]);
+
+  async function handleImageUpload(
+    e: React.ChangeEvent<HTMLInputElement>
+  ) {
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+
+    setUploadingImage(true);
+    setError("");
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("/api/admin/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Failed to upload image");
+      }
+
+      setForm((current) => ({
+        ...current,
+        images: [...current.images, data.image.url],
+      }));
+    } catch (error) {
+      console.error(error);
+
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Failed to upload image."
+      );
+    } finally {
+      setUploadingImage(false);
+      e.target.value = "";
+    }
+  }
 
   function handleChange(
     e: React.ChangeEvent<
@@ -304,6 +459,90 @@ export default function EditProjectPage() {
             </div>
           </section>
 
+          {/* Project images */}
+          <section className="space-y-6 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+            <div>
+              <h2 className="text-lg font-semibold">
+                Project images
+              </h2>
+
+              <p className="mt-1 text-sm text-zinc-500">
+                Upload images that will be displayed with this project.
+              </p>
+            </div>
+
+            {/* Existing images */}
+            {form.images.length > 0 && (
+              <div className="grid gap-4 sm:grid-cols-2">
+                {form.images.map((image, index) => (
+                  <div
+                    key={`${image}-${index}`}
+                    className="overflow-hidden rounded-xl border border-white/10 bg-black"
+                  >
+                    <img
+                      src={image}
+                      alt={`${form.title} image ${index + 1}`}
+                      className="h-48 w-full object-cover"
+                    />
+
+                    <div className="flex items-center justify-between border-t border-white/10 px-4 py-3">
+                      <div className="flex items-center gap-4">
+                      <span className="text-xs text-zinc-500">
+                        Image {index + 1}
+                      </span>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditingImage(image);
+                          setEditingImageIndex(index);
+                          setCrop({ x: 0, y: 0 });
+                          setZoom(1);
+                          setRotation(0);
+                          setCroppedAreaPixels(null);
+                        }}
+                        className="text-xs text-cyan-400 transition-colors hover:text-cyan-300"
+                      >
+                        Edit
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setForm((current) => ({
+                            ...current,
+                            images: current.images.filter(
+                              (_, imageIndex) => imageIndex !== index
+                            ),
+                          }));
+                        }}
+                        className="text-xs text-red-400 transition-colors hover:text-red-300"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Upload */}
+            <div>
+              <label className="inline-flex cursor-pointer rounded-full border border-cyan-400/30 bg-cyan-400/5 px-5 py-2.5 text-sm font-medium text-cyan-300 transition-all duration-300 hover:border-cyan-400/60 hover:bg-cyan-400/10">
+                {uploadingImage ? "Uploading..." : "Upload image"}
+
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  disabled={uploadingImage}
+                  className="hidden"
+                />
+              </label>
+            </div>
+          </section>
+
           {/* Technologies */}
           <section className="space-y-6 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
             <h2 className="text-lg font-semibold">
@@ -324,8 +563,8 @@ export default function EditProjectPage() {
               value={form.features}
               onChange={handleChange}
               placeholder={`Real-time search filtering
-No User Found message
-Dark/Light theme`}
+              No User Found message
+              Dark/Light theme`}
             />
 
             <TextField
@@ -334,8 +573,8 @@ Dark/Light theme`}
               value={form.challenges}
               onChange={handleChange}
               placeholder={`Real-time filtering
-LocalStorage
-Responsive interface`}
+              LocalStorage
+              Responsive interface`}
             />
           </section>
 
@@ -428,8 +667,186 @@ Responsive interface`}
               {saving ? "Saving..." : "Save changes"}
             </button>
           </div>
-        </form>
+                </form>
       </div>
+
+      {editingImage && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+          <div className="w-full max-w-3xl overflow-hidden rounded-2xl border border-white/10 bg-zinc-950 shadow-2xl">
+
+            <div className="flex items-center justify-between border-b border-white/10 px-6 py-4">
+              <div>
+                <h2 className="text-lg font-semibold text-white">
+                  Edit Image
+                </h2>
+
+                <p className="text-sm text-zinc-500">
+                  Crop, zoom or rotate your image
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setEditingImage(null);
+                  setEditingImageIndex(null);
+                }}
+                className="text-zinc-400 transition-colors hover:text-white"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="relative h-[420px] bg-black">
+              <Cropper
+                image={editingImage}
+                crop={crop}
+                zoom={zoom}
+                rotation={rotation}
+                aspect={16 / 9}
+                onCropChange={setCrop}
+                onZoomChange={setZoom}
+                onRotationChange={setRotation}
+                onCropComplete={handleCropComplete}
+              />
+            </div>
+
+            <div className="space-y-5 border-t border-white/10 p-6">
+
+              <div>
+                <div className="mb-2 flex justify-between text-sm">
+                  <span className="text-zinc-400">Zoom</span>
+                  <span className="text-zinc-500">
+                    {zoom.toFixed(1)}x
+                  </span>
+                </div>
+
+                <input
+                  type="range"
+                  min={1}
+                  max={3}
+                  step={0.1}
+                  value={zoom}
+                  onChange={(e) => setZoom(Number(e.target.value))}
+                  className="w-full"
+                />
+              </div>
+
+              <div>
+                <div className="mb-2 flex justify-between text-sm">
+                  <span className="text-zinc-400">Rotation</span>
+                  <span className="text-zinc-500">
+                    {rotation}°
+                  </span>
+                </div>
+
+                <input
+                  type="range"
+                  min={0}
+                  max={360}
+                  step={1}
+                  value={rotation}
+                  onChange={(e) => setRotation(Number(e.target.value))}
+                  className="w-full"
+                />
+              </div>
+
+              <div className="flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCrop({ x: 0, y: 0 });
+                    setZoom(1);
+                    setRotation(0);
+                  }}
+                  className="rounded-full border border-white/10 px-5 py-2 text-sm text-zinc-300 transition-colors hover:bg-white/5"
+                >
+                  Reset
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingImage(null);
+                    setEditingImageIndex(null);
+                  }}
+                  className="rounded-full border border-white/10 px-5 py-2 text-sm text-zinc-300 transition-colors hover:bg-white/5"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="button"
+                  disabled={!croppedAreaPixels || uploadingImage}
+                  onClick={async () => {
+                    if (!editingImage || editingImageIndex === null || !croppedAreaPixels) {
+                      return;
+                    }
+
+                    setUploadingImage(true);
+                    setError("");
+
+                    try {
+                      const croppedBlob = await getCroppedImg(
+                        editingImage,
+                        croppedAreaPixels,
+                        rotation
+                      );
+
+                      const formData = new FormData();
+                      formData.append(
+                        "file",
+                        new File([croppedBlob], "edited-image.jpg", {
+                          type: "image/jpeg",
+                        })
+                      );
+
+                      const response = await fetch("/api/admin/upload", {
+                        method: "POST",
+                        body: formData,
+                      });
+
+                      const data = await response.json();
+
+                      if (!response.ok || !data.success) {
+                        throw new Error(data.message || "Failed to upload edited image");
+                      }
+
+                      setForm((current) => ({
+                        ...current,
+                        images: current.images.map((image, index) =>
+                          index === editingImageIndex ? data.image.url : image
+                        ),
+                      }));
+
+                      setEditingImage(null);
+                      setEditingImageIndex(null);
+                      setCrop({ x: 0, y: 0 });
+                      setZoom(1);
+                      setRotation(0);
+                      setCroppedAreaPixels(null);
+                    } catch (error) {
+                      console.error(error);
+
+                      setError(
+                        error instanceof Error
+                          ? error.message
+                          : "Failed to save edited image."
+                      );
+                    } finally {
+                      setUploadingImage(false);
+                    }
+                  }}
+                  className="rounded-full bg-cyan-400 px-5 py-2 text-sm font-semibold text-black transition-all hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {uploadingImage ? "Saving..." : "Save Image"}
+                </button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
