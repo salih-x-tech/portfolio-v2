@@ -11,34 +11,54 @@ import { connectDB } from "@/lib/mongodb";
 import Project from "@/lib/models/Project";
 
 export default async function Home() {
-  await connectDB();
+  let projects: Array<{
+    title: string;
+    slug: string;
+    description: string;
+    tech: string[];
+    type: string;
+    github: string;
+    demo: string;
+    featured: boolean;
+    status: string;
+    image: string;
+  }> = [];
 
-  let projectsFromDB = await Project.find({ featured: true })
-    .sort({ createdAt: -1 })
-    .limit(6)
-    .lean();
+  try {
+    await connectDB();
 
-  if (projectsFromDB.length < 6) {
-    const existingIds = projectsFromDB.map((p) => p._id);
-    const additional = await Project.find({ _id: { $nin: existingIds } })
+    let projectsFromDB = await Project.find({ featured: true })
       .sort({ createdAt: -1 })
-      .limit(6 - projectsFromDB.length)
+      .limit(6)
       .lean();
-    projectsFromDB = [...projectsFromDB, ...additional];
-  }
 
-  const projects = projectsFromDB.map((project) => ({
-    title: project.title,
-    slug: project.slug,
-    description: project.description,
-    tech: project.technologies || [],
-    type: project.type || "Project",
-    github: project.github || "",
-    demo: project.liveDemo || "",
-    featured: project.featured ?? true,
-    status: project.status || "Completed",
-    image: project.images?.[0] || project.screenshots?.[0] || "",
-  }));
+    console.log("Fetched projects from DB:", projectsFromDB.length);
+
+    if (projectsFromDB.length < 6) {
+      const existingIds = projectsFromDB.map((p) => p._id);
+      const additional = await Project.find({ _id: { $nin: existingIds } })
+        .sort({ createdAt: -1 })
+        .limit(6 - projectsFromDB.length)
+        .lean();
+      projectsFromDB = [...projectsFromDB, ...additional];
+    }
+
+    projects = projectsFromDB.map((project: any) => ({
+      title: project.title,
+      slug: project.slug,
+      description: project.description,
+      tech: project.technologies || [],
+      type: project.type || "Project",
+      github: project.github || "",
+      demo: project.liveDemo || "",
+      featured: project.featured ?? true,
+      status: project.status || "Completed",
+      image: project.images?.[0] || project.screenshots?.[0] || "",
+    }));
+  } catch (error) {
+    console.error("⚠️ Failed to load projects from DB:", error);
+    // projects remains [] (or you can assign fallback mock data here)
+  }
 
   return (
     <>
@@ -58,4 +78,4 @@ export default async function Home() {
       <Footer />
     </>
   );
-}
+}  
