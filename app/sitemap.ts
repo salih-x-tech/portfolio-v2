@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { connectDB } from "@/lib/mongodb";
 import Project from "@/lib/models/Project";
 
-const siteUrl = "https://salihhayat.dev";
+const siteUrl = "https://salih-portfolio-seven.vercel.app";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   await connectDB();

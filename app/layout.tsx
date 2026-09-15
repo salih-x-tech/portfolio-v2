@@ -12,7 +12,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const siteUrl = "https://salihhayat.dev";
+const siteUrl = "https://salih-portfolio-seven.vercel.app";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -116,11 +116,11 @@ export default function RootLayout({
         "@context": "https://schema.org",
         "@type": "Person",
         name: "Salih Hayat",
-        url: "https://salihhayat.dev",
+        url: "https://salih-portfolio-seven.vercel.app",
         jobTitle: "Full-Stack Developer",
         description:
           "Full-Stack Developer specializing in JavaScript, React, Next.js, and AI-powered web applications.",
-        image: "https://salihhayat.dev/images/salih-hayat.png",
+        image: "https://salih-portfolio-seven.vercel.app/images/salih-hayat.png",
         sameAs: [
           "https://github.com/salih-x-tech",
           "https://www.linkedin.com/in/salih-hayat-b30097332",

@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       disallow: ["/admin/", "/api/"],
     },
-    sitemap: "https://salihhayat.dev/sitemap.xml",
+    sitemap: "https://salih-portfolio-seven.vercel.app/sitemap.xml",
   };
 }

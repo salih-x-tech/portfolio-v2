@@ -129,11 +129,11 @@ export default async function ProjectPage({
             project.description ||
             project.longDescription ||
             "A software project built by Salih Hayat.",
-          url: `https://salihhayat.dev/projects/${project.slug}`,
+          url: `https://salih-portfolio-seven.vercel.app/projects/${project.slug}`,
           author: {
             "@type": "Person",
             name: "Salih Hayat",
-            url: "https://salihhayat.dev",
+            url: "https://salih-portfolio-seven.vercel.app",
           },
           programmingLanguage: technologies,
           image: images[0] || undefined,
