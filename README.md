@@ -21,15 +21,20 @@
 ## Preview
 
 <div align="center">
-  <img src="public/projects/socialsphere/home-feed.png" alt="Portfolio Project Showcase - SocialSphere" width="800" />
+  <img src="public/screenshots/hero.png" alt="Portfolio Hero Section" width="900" />
 </div>
 
 <br />
 
-| Project Showcase | Admin Management |
+| About & Skills Overview | Contact & Collaboration Section |
 | :--- | :--- |
-| ![E-Commerce Cart](public/projects/ecommerce-store/cart.png) | ![Admin Dashboard](public/projects/ecommerce-store/admin-dashboard.png) |
-| ![Weather Dashboard](public/projects/weather-dashboard/home-light.png) | ![NeuralOps Landing Page](public/projects/neuralops/home.png) |
+| ![About Section](public/screenshots/about.png) | ![Contact Section](public/screenshots/contact.png) |
+
+<br />
+
+| Admin Portal Authentication | CMS Project Management Dashboard |
+| :--- | :--- |
+| ![Admin Login](public/screenshots/admin-login.png) | ![Admin Projects Dashboard](public/screenshots/admin-projects.png) |
 
 ---
 
@@ -229,7 +234,8 @@ portfolio-v2/
 │   └── projects.ts                   # Static seed data & Project TypeScript types
 ├── public/
 │   ├── images/                       # Profile assets
-│   └── projects/                     # Local project screenshots & mockups
+│   ├── projects/                     # Local project screenshots & mockups
+│   └── screenshots/                  # Portfolio UI & admin interface screenshots
 ├── scripts/
 │   ├── migrate-projects.js           # Database migration script for projects
 │   └── update-project-images.js      # Image path alignment utility
