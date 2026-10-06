@@ -19,10 +19,10 @@ type ProjectsProps = {
 
 export default function Projects({ projects }: ProjectsProps) {
   const featuredProjects = projects.filter((project) => project.featured);
-  const displayProjects =
-    featuredProjects.length >= 6
-      ? featuredProjects.slice(0, 6)
-      : projects.slice(0, 6);
+  const displayProjects = [
+    ...featuredProjects,
+    ...projects.filter((project) => !project.featured),
+  ].slice(0, 6);
 
   return (
     <section
@@ -147,35 +147,21 @@ export default function Projects({ projects }: ProjectsProps) {
                       </a>
                     )}
 
-                    {project.demo ? (
+                    {project.demo && (
                       <a
                         href={project.demo}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="font-semibold text-indigo-400 transition-colors hover:text-indigo-300"
                       >
-                        View Project ↗
+                        Live Demo ↗
                       </a>
-                    ) : (
-                      <Link
-                        href={`/projects/${project.slug}`}
-                        className="font-semibold text-indigo-400 transition-colors hover:text-indigo-300"
-                      >
-                        View Project ↗
-                      </Link>
                     )}
                   </div>
                 </div>
               </div>
             </article>
           ))}
-        </div>
-
-        {/* Carousel pagination dots matching reference */}
-        <div className="mt-10 flex items-center justify-center gap-2">
-          <span className="h-2 w-6 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.6)]" />
-          <span className="h-2 w-2 rounded-full bg-slate-700" />
-          <span className="h-2 w-2 rounded-full bg-slate-700" />
         </div>
 
         {/* View All Projects Button */}
