@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import { createProjectSlug, selectCoverImage } from "@/lib/project-form";
 
 export default function NewProjectPage() {
   const router = useRouter();
@@ -25,6 +26,8 @@ export default function NewProjectPage() {
     status: "Completed",
   });
 
+  const [manualSlug, setManualSlug] = useState(false);
+
   // Cloudinary image state
   const [images, setImages] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
@@ -39,8 +42,11 @@ export default function NewProjectPage() {
   ) {
     const { name, value, type } = e.target;
 
+    if (name === "slug") setManualSlug(true);
+
     setForm((current) => ({
       ...current,
+      ...(name === "title" && !manualSlug ? { slug: createProjectSlug(value) } : {}),
       [name]:
         type === "checkbox"
           ? (e.target as HTMLInputElement).checked
@@ -232,6 +238,11 @@ export default function NewProjectPage() {
               />
             </div>
 
+            <button type="button" onClick={() => { setManualSlug(false); setForm(current => ({ ...current, slug: createProjectSlug(current.title) })); }} className="text-sm text-cyan-400 hover:text-cyan-300">
+              Generate slug from title
+            </button>
+            <p className="text-xs text-zinc-400">The slug is generated automatically until you edit it yourself.</p>
+
             <TextField
               label="Short description"
               name="description"
@@ -336,7 +347,7 @@ Responsive UI`}
 
             <p className="text-sm leading-6 text-zinc-500">
               Upload project screenshots or images. Images will be
-              stored securely on Cloudinary.
+              stored securely on Cloudinary. Select a cover for the homepage; it becomes the first image.
             </p>
 
             <div className="rounded-xl border border-dashed border-white/10 bg-black p-5">
@@ -381,8 +392,17 @@ Responsive UI`}
 
                     <button
                       type="button"
+                      aria-pressed={index === 0}
+                      onClick={() => setImages(current => selectCoverImage(current, index))}
+                      className="absolute left-3 top-3 rounded-full bg-black/80 px-3 py-1.5 text-xs text-cyan-300"
+                    >
+                      {index === 0 ? "Cover image" : "Set as cover"}
+                    </button>
+
+                    <button
+                      type="button"
                       onClick={() => removeImage(index)}
-                      className="absolute right-3 top-3 rounded-full bg-black/80 px-3 py-1.5 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-500"
+                      className="absolute right-3 top-3 rounded-full bg-black/80 px-3 py-1.5 text-xs text-white transition-colors hover:bg-red-500"
                     >
                       Remove
                     </button>

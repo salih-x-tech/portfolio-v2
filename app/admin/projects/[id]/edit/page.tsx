@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Cropper from "react-easy-crop";
+import { createProjectSlug, selectCoverImage } from "@/lib/project-form";
 
 type ProjectForm = {
   title: string;
@@ -131,6 +132,8 @@ export default function EditProjectPage() {
     status: "Completed",
   });
 
+  const [projectLoaded, setProjectLoaded] = useState(false);
+  const [manualSlug, setManualSlug] = useState(true);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -193,6 +196,7 @@ export default function EditProjectPage() {
           featured: project.featured ?? false,
           status: project.status || "Completed",
         });
+        setProjectLoaded(true);
       } catch (error) {
         console.error(error);
 
@@ -259,8 +263,11 @@ export default function EditProjectPage() {
   ) {
     const { name, value, type } = e.target;
 
+    if (name === "slug") setManualSlug(true);
+
     setForm((current) => ({
       ...current,
+      ...(name === "title" && !manualSlug ? { slug: createProjectSlug(value) } : {}),
       [name]:
         type === "checkbox"
           ? (e.target as HTMLInputElement).checked
@@ -330,7 +337,7 @@ export default function EditProjectPage() {
     );
   }
 
-  if (error) {
+  if (error && !projectLoaded) {
     return (
       <main className="min-h-screen bg-black px-6 py-16 text-white sm:px-10 lg:px-16">
         <div className="mx-auto max-w-4xl">
@@ -373,6 +380,8 @@ export default function EditProjectPage() {
           </p>
         </div>
 
+        {error && <div role="alert" className="mt-6 rounded-xl border border-red-400/20 p-4 text-sm text-red-300">{error}</div>}
+
         <form onSubmit={handleSubmit} className="mt-12 space-y-8">
           {/* Basic information */}
           <section className="space-y-6 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
@@ -397,6 +406,11 @@ export default function EditProjectPage() {
                 required
               />
             </div>
+
+            <button type="button" onClick={() => { setManualSlug(false); setForm(current => ({ ...current, slug: createProjectSlug(current.title) })); }} className="text-sm text-cyan-400 hover:text-cyan-300">
+              Generate slug from title
+            </button>
+            <p className="text-xs text-zinc-400">Existing URLs stay the same until you edit or regenerate the slug.</p>
 
             <TextField
               label="Short description"
@@ -467,7 +481,7 @@ export default function EditProjectPage() {
               </h2>
 
               <p className="mt-1 text-sm text-zinc-500">
-                Upload images that will be displayed with this project.
+                Upload images that will be displayed with this project. Select a cover for the homepage; it becomes the first image.
               </p>
             </div>
 
@@ -487,9 +501,11 @@ export default function EditProjectPage() {
 
                     <div className="flex items-center justify-between border-t border-white/10 px-4 py-3">
                       <div className="flex items-center gap-4">
-                      <span className="text-xs text-zinc-500">
-                        Image {index + 1}
-                      </span>
+                      <button type="button" aria-pressed={index === 0}
+                        onClick={() => setForm(current => ({ ...current, images: selectCoverImage(current.images, index) }))}
+                        className="text-xs text-cyan-400 hover:text-cyan-300">
+                        {index === 0 ? "Cover image" : "Set as cover"}
+                      </button>
 
                       <button
                         type="button"
@@ -661,7 +677,7 @@ export default function EditProjectPage() {
 
             <button
               type="submit"
-              disabled={saving}
+              disabled={saving || uploadingImage}
               className="rounded-full bg-cyan-400 px-6 py-2.5 text-sm font-medium text-black transition-colors hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {saving ? "Saving..." : "Save changes"}

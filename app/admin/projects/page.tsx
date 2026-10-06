@@ -188,15 +188,6 @@ async function handleLogout() {
                   </Link>
 
                   <div className="flex items-center gap-3">
-                    <a
-                      href={`/projects/${project.slug}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm text-zinc-400 hover:text-cyan-400"
-                    >
-                      View
-                    </a>
-
                     <Link
                       href={`/admin/projects/${project._id}/edit`}
                       className="text-sm text-zinc-400 hover:text-cyan-400"
