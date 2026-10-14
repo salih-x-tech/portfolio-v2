@@ -198,7 +198,7 @@ export default function Hero() {
 
             {/* Floating Code Snippet Card positioned lower underneath the face */}
             <div
-              className="absolute -right-2 sm:-right-6 bottom-4 sm:bottom-8 z-20 w-56 sm:w-64 rounded-2xl border border-white/10 bg-[#0c1022]/90 p-4 shadow-[0_20px_50px_rgba(0,0,0,0.6)] backdrop-blur-xl transition-transform duration-300 ease-out animate-badge-float"
+              className="hidden md:block absolute -right-2 sm:-right-6 bottom-4 sm:bottom-8 z-20 w-56 sm:w-64 rounded-2xl border border-white/10 bg-[#0c1022]/90 p-4 shadow-[0_20px_50px_rgba(0,0,0,0.6)] backdrop-blur-xl transition-transform duration-300 ease-out animate-badge-float"
               style={{
                 transform: `translate3d(${mouse.x * -8}px, ${mouse.y * -8}px, 0)`,
               }}
