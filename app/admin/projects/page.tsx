@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import CvUpload from "@/components/admin/CvUpload";
 import { useRouter } from "next/navigation";
 
 type Project = {
@@ -91,6 +92,7 @@ async function handleLogout() {
   return (
     <main className="min-h-screen bg-black px-6 py-16 text-white sm:px-10 lg:px-16">
       <div className="mx-auto max-w-6xl">
+        <CvUpload />
         <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="mb-3 text-sm font-medium uppercase tracking-[0.2em] text-cyan-400">

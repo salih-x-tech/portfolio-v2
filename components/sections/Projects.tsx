@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 type Project = {
@@ -65,7 +66,7 @@ export default function Projects({ projects }: ProjectsProps) {
               {/* Preview Image / Mockup Area */}
               <div className="relative h-48 w-full overflow-hidden bg-[#070918] border-b border-white/5">
                 {project.image ? (
-                  <img
+                  <Image fill sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw"
                     src={project.image}
                     alt={project.title}
                     className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"

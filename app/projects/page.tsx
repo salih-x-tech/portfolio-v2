@@ -3,6 +3,8 @@ import ProjectsGrid from "@/components/projects/ProjectsGrid";
 import { connectDB } from "@/lib/mongodb";
 import Project from "@/lib/models/Project";
 
+export const dynamic = "force-dynamic";
+
 export default async function ProjectsPage() {
   await connectDB();
 
@@ -15,6 +17,7 @@ export default async function ProjectsPage() {
     slug: project.slug,
     description: project.description,
     tech: project.technologies || project.tech || [],
+    category: project.category,
     type: project.type || "Project",
     github: project.github || "",
     demo: project.liveDemo || project.demo || "",

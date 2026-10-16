@@ -10,6 +10,8 @@ import Footer from "@/components/layout/Footer";
 import { connectDB } from "@/lib/mongodb";
 import Project from "@/lib/models/Project";
 
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   let projects: Array<{
     title: string;
@@ -27,23 +29,12 @@ export default async function Home() {
   try {
     await connectDB();
 
-    let projectsFromDB = await Project.find({ featured: true })
-      .sort({ createdAt: -1 })
+    const projectsFromDB = await Project.find()
+      .sort({ featured: -1, createdAt: -1 })
       .limit(6)
       .lean();
 
-    console.log("Fetched projects from DB:", projectsFromDB.length);
-
-    if (projectsFromDB.length < 6) {
-      const existingIds = projectsFromDB.map((p) => p._id);
-      const additional = await Project.find({ _id: { $nin: existingIds } })
-        .sort({ createdAt: -1 })
-        .limit(6 - projectsFromDB.length)
-        .lean();
-      projectsFromDB = [...projectsFromDB, ...additional];
-    }
-
-    projects = projectsFromDB.map((project: any) => ({
+    projects = projectsFromDB.map((project) => ({
       title: project.title,
       slug: project.slug,
       description: project.description,

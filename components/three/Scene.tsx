@@ -9,11 +9,7 @@ function ResponsiveCamera() {
   const { camera, viewport } = useThree();
 
   useEffect(() => {
-    if (viewport.width < 5) {
-      camera.position.z = 6;
-    } else {
-      camera.position.z = 5;
-    }
+    camera.position.setZ(viewport.width < 5 ? 6 : 5);
   }, [camera, viewport.width]);
 
   return null;

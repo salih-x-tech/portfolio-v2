@@ -1,5 +1,6 @@
 "use client";
 
+import { bizflowDraft } from "@/lib/bizflow-draft";
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createProjectSlug, selectCoverImage } from "@/lib/project-form";
@@ -207,6 +208,21 @@ export default function NewProjectPage() {
             Add a new project to your portfolio.
           </p>
         </div>
+
+        <button
+          type="button"
+          onClick={() => {
+            if ((form.title || form.description || images.length) && !window.confirm("Replace this draft with the prepared BizFlow details?")) return;
+            setForm({ ...bizflowDraft });
+            setManualSlug(true);
+            setImages([]);
+            setError("");
+          }}
+          disabled={loading || uploading}
+          className="mt-6 rounded-xl border border-cyan-400/30 px-4 py-2 text-sm text-cyan-300 disabled:opacity-50"
+        >
+          Load BizFlow details
+        </button>
 
         <form
           onSubmit={handleSubmit}

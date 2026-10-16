@@ -9,6 +9,7 @@ type Project = {
   description: string;
   tech: string[];
   type: string;
+  category?: string;
   github: string;
   demo: string;
   status?: string;
@@ -30,7 +31,7 @@ export default function ProjectsGrid({
     activeFilter === "All"
       ? projects
       : projects.filter((project) => {
-          const type = project.type.toLowerCase();
+          const type = (project.category || project.type).toLowerCase();
 
           if (activeFilter === "Frontend") {
             return type.includes("frontend");
@@ -58,6 +59,7 @@ export default function ProjectsGrid({
             <button
               key={filter}
               type="button"
+              aria-pressed={isActive}
               onClick={() => setActiveFilter(filter)}
               className={`rounded-xl border px-5 py-2 text-sm font-semibold transition-all duration-300 ${
                 isActive
